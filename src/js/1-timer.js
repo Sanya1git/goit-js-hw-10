@@ -14,8 +14,7 @@ const options = {
   minuteIncrement: 1,
   onClose(selectedDates) {
     userSelectedDate = selectedDates[0];
-    timeInterval = userSelectedDate - options.defaultDate;
-
+    timeInterval = userSelectedDate - new Date();
     if (timeInterval < 1) {
       iziToast.error({
         color: 'red',
@@ -23,14 +22,15 @@ const options = {
         message: `Please choose a date in the future`,
       });
     } else {
-      startBtn.disabled = false;
+      startButton.disabled = false;
       inputTime.disabled = true;
+      startButton.classList.add(`btn-active`);
     }
   },
 };
 
 function convertMs(ms) {
-  
+  // Number of milliseconds per unit of time
   const second = 1000;
   const minute = second * 60;
   const hour = minute * 60;
@@ -48,32 +48,25 @@ function convertMs(ms) {
   return { days, hours, minutes, seconds };
 }
 
-
 const calendar = flatpickr('#datetime-picker', options);
 const inputTime = document.querySelector('#datetime-picker');
-const startBtn = document.querySelector('button');
+const startButton = document.querySelector('button');
 const showTime = document.querySelectorAll('.value');
-
 
 console.log(showTime);
 
-startBtn.disabled = true;
+startButton.disabled = true;
 
-startBtn.addEventListener('click', event => {
-  const repeatTime = setInterval(() => {
+startButton.addEventListener('click', event => {
+  const intervalId = setInterval(() => {
     timeInterval = userSelectedDate - new Date();
-    event.preventDefault();
-    inputTime.disabled = true;
-
+    startButton.classList.remove(`btn-active`);
     if (timeInterval < 1) {
-      startBtn.disabled = true;
-      inputTime.disabled = false;
-      clearInterval(repeatTime);
+      startButton.disabled = true;
+      clearInterval(intervalId);
       return;
     }
-
     const timer = convertMs(timeInterval);
-
     showTime[0].innerText = timer.days.toString().padStart(2, '0');
     showTime[1].innerText = timer.hours.toString().padStart(2, '0');
     showTime[2].innerText = timer.minutes.toString().padStart(2, '0');
